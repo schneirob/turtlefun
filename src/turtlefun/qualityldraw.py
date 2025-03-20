@@ -1,9 +1,7 @@
 """src/turtlefun/qualityline.py"""
 
-#from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw
 from typing import Tuple, Union, Sequence
-
-Image = int
 
 class QualityDraw:
     
