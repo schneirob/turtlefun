@@ -20,6 +20,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 from . import __version__
 from .turtle import Turtle
 from .turtle_explorer import explore_euler_spiral
+from .turtle_explorer_pq import explore_euler_spiral_pq, explore_euler_spiral_pq_list
 from .turtle_animate_line import AnimateTurtle
 from .turtle_slideshow import TurtleSlideshow
 from .turtle_codewindow import TurtleCodeWindow
@@ -169,7 +170,7 @@ def default(item:int, theta:float) -> None:
     width = 2560
     height = 1440
     framerate = 50
-    path = "/backup/turtlefunanimations"
+    path = ".\\imageseries\\"
     line_angles = {
         
     }
@@ -2325,7 +2326,268 @@ def default(item:int, theta:float) -> None:
             path = path,
         )
         t.animate()        
-              
+    elif item == 42:
+        """Calculate p/q*360=theta for even q and p=1"""
+        qvalue = []
+        for q in range(18000):
+            qvalue.append(int((q+1)*2))
+        explore_euler_spiral_pq([1], qvalue, 100000, 3, None)
+    elif item == 43:
+        """Calculate p/q*360=theta for q=const and p without primefactors of q."""
+        q = 8192
+        q_primes = get_primes(q)
+
+        p_list = []
+        for p in range(1, int(q/2), 2):
+            p_primes = get_primes(p)
+            good = True
+            for pp in p_primes:
+                if pp in q_primes:
+                    good = False
+                    break
+            if good:
+                p_list.append(p)
+                logger.debug("p={}, p_primes={}", p, p_primes)
+        explore_euler_spiral_pq(p_list, [q], 100000, 3, None)
+    elif item == 44:
+        """Calculate p/q*360=theta for p=const and q without prime factors of p."""
+        p = 89
+        p_primes = get_primes(p)
+
+        q_list = []
+        for q in range(2,100000,2*p):
+            q_primes = get_primes(q)
+            good = True
+            for pp in p_primes:
+                if pp in q_primes:
+                    good = False
+                    break
+            if good:
+                q_list.append(q)
+                logger.debug("q={}, q_primes={}", q, q_primes)
+        explore_euler_spiral_pq([p], q_list, 100000, 3, None)
+    elif item == 45:
+        """Calculate 'every' possible image with p = prime and q = even."""
+        # p == uneven, q == even
+        steps = 120 # actually its half steps ...
+        p = 467
+        while p < 2000:
+            for _i in range(10):
+                p = nextprime(p)
+            
+            p_primes = get_primes(p)
+            q_primes = None
+            q_list = []
+            for n in range(p-1):
+                q = steps * p + (n + 1) * 2
+                ok = False
+                while not ok:
+                    q_primes = get_primes(q)
+                    if set(p_primes).intersection(set(q_primes)):
+                        q += 2 * p
+                        # logger.debug("p={}, n={}, q={}, p_primes={}, q_primes={}", p, n, q, p_primes, q_primes)
+                    else:
+                        ok = True
+                    if q > 2 * p * steps:
+                        break
+                # logger.debug("Found: p={}, n={}, q={}, p_primes={}, q_primes={}", p, n, q, p_primes, q_primes)
+                if ok:
+                    q_list.append(q)
+            explore_euler_spiral_pq([p], q_list, 2*q+1, 3, None)
+    elif item == 46:
+        """Create Euler-Euler-Spiral with varying number of Euler-Spirals."""
+        animationtype = "Euler-Euler-Spiral"
+        
+        linewidth = 5
+        quality_factor = 4
+        zoom_factor = 1
+        width *= quality_factor * zoom_factor
+        height *= quality_factor * zoom_factor
+        linewidth *= quality_factor
+        
+        path = os.path.join(path, animationtype)
+ 
+        os.makedirs(path, exist_ok=True)
+        
+        duration = 5 # As we do not draw, this does not matter at all, we only draw the final image
+
+        theta_list = []
+        fileinfo = {}
+        for p in range(5, 251, 2):
+            q = p * 501 + 1
+            theta = p / q * 360.0
+            theta_list.append((theta, 0, q * 2))
+            fileinfo[theta] = "p=" + "{:03d}".format(p) + "_q=" + str(q)
+
+        for  theta, angle, total_iterations in theta_list:
+            
+            base_pallette, palette_name = (cc.b_cyclic_mygbm_30_95_c78, "b_cyclic_mygbm_30_95_c78")          
+                
+            name = "tfa_" + "{:03d}".format(item) + "_" + fileinfo[theta] + "_" + "theta={:0.5f}".format(theta).replace(".", "-") + "_" + "{:0.2f}".format(angle).replace(".", "_") + "_" + palette_name + "_" + animationtype
+            
+            t = AnimateTurtle(
+                angle = angle,
+                duration = duration,
+                iterations = total_iterations,
+                stepsize = 10,
+                linewidth = linewidth,
+                show_turtle = False,
+                border = 0.02,
+                draw = False,
+                
+                color_palette = base_pallette,
+                palette_lines = True,
+                steps_per_color = int(total_iterations/(len(base_pallette)*2)),
+                background_image = Image.new("RGBA", (width, height)),
+                
+                xoffset = int(round(width / 2, 0)),
+                yoffset = int(round(height / 2, 0)),
+                
+                quality_draw = True,
+                
+                autoscale = True,
+                detect_origin_return = False,
+                image_speed = (0,0),
+                
+                name = name,
+                theta = theta,
+                framerate = framerate,
+                width = width,
+                height = height,
+                path = path,
+            )
+            t.animate()
+            image = t.es_turtle.image.resize((int(round(width / quality_factor,0)), int(round(height / quality_factor,0))), Resampling.LANCZOS)
+            for bg in ["black"]:
+                if bg == palette_name:
+                    continue
+                bgimage = Image.new("RGB", (int(round(width / quality_factor,0)), int(round(height / quality_factor,0))), bg)
+                bgimage.paste(image, (0, 0), image)
+                bgimage.save(os.path.join(path, name + "_" + bg + ".png"))
+            logger.info("Finalized storing images for {}", name)
+    elif item == 47:
+        """Calculate p/q*360 = theta for p=1 and undeven q"""
+        qvalue = []
+        for q in range(18000):
+            qvalue.append(int(q*2 + 1))
+        explore_euler_spiral_pq([2], qvalue, None, 3, None)
+    elif item == 48:
+        """Calculate 'every' possible image with q = uneven."""
+        # q == uneven
+        steps = 500 # actually its half steps ...
+        p = 0
+        while p < 2000:
+            p += 1   
+            p_primes = get_primes(p)
+            q_primes = None
+            q_list = []
+            for n in range(p):
+                q = steps * p + 2 * n + 1
+                ok = False
+                while not ok:
+                    q_primes = get_primes(q)
+                    if set(p_primes).intersection(set(q_primes)):
+                        q += 2 * p
+                        # logger.debug("p={}, n={}, q={}, p_primes={}, q_primes={}", p, n, q, p_primes, q_primes)
+                    else:
+                        ok = True
+                    if q > 2 * p * steps:
+                        break
+                # logger.debug("Found: p={}, n={}, q={}, p_primes={}, q_primes={}", p, n, q, p_primes, q_primes)
+                if ok:
+                    q_list.append(q)
+            explore_euler_spiral_pq([p], q_list, None, 3, './es_results_uneven')
+    elif item == 49:
+        """Create sample images for lines"""
+        steps = 500 # actually its half steps ...
+        height = 600
+        width *= 4
+        linewidth = 6
+ 
+        animationtype = "linesample"       
+        path = os.path.join(path, animationtype)
+        os.makedirs(path, exist_ok=True)
+
+        pq_list = []
+        p = 0
+        while p < 200:
+            logger.debug("Values in pq_list: {}", len(pq_list))
+            if len(pq_list) > 5000:
+                logger.warning("Stopping at p={} due to length of list!", p)
+                break
+            p += 1   
+            p_primes = get_primes(p)
+            q_primes = None
+            for n in range(p):
+                q = steps * p + 2 * n + 1
+                ok = False
+                while not ok:
+                    q_primes = get_primes(q)
+                    if set(p_primes).intersection(set(q_primes)):
+                        q += 2 * p
+                        # logger.debug("p={}, n={}, q={}, p_primes={}, q_primes={}", p, n, q, p_primes, q_primes)
+                    else:
+                        ok = True
+                    if q > 2 * p * steps:
+                        break
+                # logger.debug("Found: p={}, n={}, q={}, p_primes={}, q_primes={}", p, n, q, p_primes, q_primes)
+                if ok:
+                    pq_list.append((p, q))
+
+        for p_value, q_value in pq_list:
+
+            theta = p_value / q_value * 360
+
+            logger.debug("Creating slim line sample image for theta={}", theta)
+
+            name = "tfa_" + "{:03d}".format(item) + "_" + "p=" + "{:03d}".format(p_value) + "_q=" + "{:06d}".format(q_value) + "_" + "{:012.8f}".format(theta).replace(".", "-") + "_" + animationtype
+            
+            angle = 0
+            iterations = q_value * 2 * 10
+            image_height = 0
+            stepsize = 10
+
+            t = Turtle(draw=False, angle=angle)
+            t.euler_spiral(theta, iterations, stepsize)
+            angle =  _get_angle((0, 0), t.get_pos())
+                
+            t = Turtle(angle=angle, draw=False)
+            t.euler_spiral(theta, iterations, stepsize)
+            
+            image_height = (t.ymax - t.ymin)
+            stepsize = round(stepsize * (height - linewidth) / image_height, 10)
+        
+            t = Turtle(angle=angle, draw=False)
+            t.euler_spiral(theta, iterations, stepsize)
+
+            image_speed_pixel_per_iteration = t.xmax / iterations
+            iterations = int(round(width * 2 / image_speed_pixel_per_iteration))
+            
+            t = Turtle(angle=angle, draw=False)
+            t.euler_spiral(theta, iterations, stepsize)
+            logger.success("Final height: {} with ymin={} and ymax={}, target height is {}", (t.ymax-t.ymin), t.ymin, t.ymax, height)
+            logger.success("Final length: {}", t.xmax - t.xmin)
+            logger.success("Final iterations: {}", iterations)
+            
+            yoffset = int(round(height / 2, 0))
+            logger.debug("Yoffset for center of animation: {}", yoffset)
+            yoffset_correction = t.ymax - (t.ymax - t.ymin) / 2
+            yoffset -= yoffset_correction
+            yoffset = int(round(yoffset, 0))
+            logger.success("Yoffset of {} after correction of {}", yoffset, yoffset_correction)
+            
+            xoffset = int(round(-1 * width / 2, 0))
+            
+            t = Turtle(width=width, height=height, angle=angle, draw=True)
+            t.quality_draw = True
+            t.linewidth = linewidth
+            t.xoffset = xoffset
+            t.yoffset = yoffset
+            
+            t.euler_spiral(theta, iterations, stepsize)
+            
+            t.save(name + ".png", path)
+
 @turtlefun.command()
 @click.option("--theta", "-t", default=1, type=float, help="Theta angle of spiral")
 @click.option("--iterations", "-i", default=100000, type=int, show_default=True, help="Interations to run through")
@@ -2378,6 +2640,16 @@ def animate(theta:float, iterations:List[int], stepsize:float, startangle:float,
         duration=duration
         )
     t.animate()
+    
+@turtlefun.command()
+@click.option("--threads", "-t", default=4, type=int, help="Number of threads to use for exploration")
+@click.option("--path", "-l", default=None, type=str, help="Path for exploration results")
+@click.option("--pvalue", "-p", default=[1], type=int, multiple=True, help="p values to explore.")
+@click.option("--qvalue", "-q", default=[10], type=int, multiple=True, help="q values to explore.")
+@click.option("--iterations", "-i", default=100000, type=int, help="Number of iterations per euler spiral.")
+def explorepq(threads:int, path:str, qvalue:List[int], pvalue:List[int], iterations:int) -> None:
+    """Explore the Euler Spiral space"""
+    explore_euler_spiral_pq(pvalue, qvalue, iterations, threads, path)
     
 @turtlefun.command()
 @click.option("--threads", "-t", default=4, type=int, help="Number of threads to use for exploration")

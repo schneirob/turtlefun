@@ -419,7 +419,7 @@ class Turtle:
             config_filename = self.create_filename(path, "ini")
         else:
             filename = os.path.join(path, filename)
-            config_filename = os.path.join(path, filename + ".ini")
+            config_filename = os.path.join(path, os.path.basename(filename) + ".ini")
         
         logger.info("Storing image in {}", filename)
         self.image.save(filename)
