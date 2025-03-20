@@ -1,3 +1,9 @@
 __pycache__
 poetry.lock
 .coverage
+es_results*
+*.aux
+*.log
+*.out
+pytest_path
+imageseries
