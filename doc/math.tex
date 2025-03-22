@@ -23,6 +23,17 @@
 
 \maketitle
 
+\section*{tl;dr}
+
+The currently best form based on experimental results to create $\theta$ in terms of knowing most about the result is 
+
+$\theta = \frac{p}{q} \cdot 360^{\circ} = \frac{2\cdot p' + 1}{(2\cdot p' + 1) \cdot (2 \cdot s + l) + 2 \cdot n} \cdot 360^{\circ}$
+
+with $p', s, n \in \mathbb{Z}$, $p, q$ coprime, $p$ is the number of base Euler spirals, $l \in \{0, 1\}$ is the line
+selector (line for $l = 1$ vs. returning turtle for $l = 0$), and $0 \leq n < p$ is the image selector, selecting on of
+the possible images available for a given $p$ and $s$ is the step count selctor per basic Euler spiral. The above
+formula still needs to be mathematically proven und probably refined in its boundry conditions.
+
 \section{Problem Statement}
 TL;DR: \url{https://www.youtube.com/watch?v=Fx1d8x0gIu4} and \url{https://github.com/schneirob/turtlefun}.
 
@@ -333,10 +344,29 @@ the difference between the returning version and the line version is increasing 
 
 Examples where the connection can be spotted easily are Figures \ref{fig:n=050}, \ref{fig:n=100}, \ref{fig:n=166}, \ref{fig:n=250}, \ref{fig:n=312}.
 
-At this point one might propose latest to rewrite $\frac{p}{q}$ as $\frac{p}{p \cdot s + n}$ with $p$ being the number of Euler spirals in one iteration,
-$s$ being the number of steps per Euler spiral and $n$ being the image selector or szenario selector within one image series defined by $p$.
+At this point one might propose latest to rewrite $\frac{p}{q}$ as $\frac{p}{p \cdot s + 2 \cdot n}$ with $p$ being the number of Euler spirals in one iteration,
+$s$ being the number of steps per Euler spiral and $n$ being the image selector or szenario selector within one image series defined by $p$. With $s$ and $s + 1$ 
+a line or a return configuration can be selected for each image.
 
+\section{Macro structure analysis of $p = 499$, $s = 400$}
 
+The image series in chapter \ref{app:A} was generated using $\theta = \frac{499}{499 * 400 + n}$, $\forall 0 \le n < 499, even$. We do have established, that
+for every $p$, the image is composed of $p$ basic Euler spirals. In there minimum form, these can be straight lines, so the image can be mistaken for beeing
+from the $p = 1$ series (Figure \ref{fig:n=000}). So now let's have a look at the macro structure impression of the images. We can identify Euler spirals made of 
+basic Euler spirals. An overview of the number of clearly identifiable Euler spirals is given in table \ref{tab:macro}.
+
+\begin{table}
+    \caption{Number of cleary identifiable macro structure Euler spirals in $p = 499$ images made of basic Euler spirals.}
+    \centering
+    \begin{tabular}{c c c}
+        Figure & n & count \\
+        \ref{fig:n=000} &   0 & 1 \\
+        \ref{fig:n=002} &   2 & 2 \\
+        \ref{fig:n=004} &   4 & 4 \\
+
+    \end{tabular}
+    \label{tab:macro}
+\end{table}
 
 % \section{Acknowledgements}
 % Thanks a lot to Schneirob for producing \url{https://www.youtube.com/watch?v=Fx1d8x0gIu4}. This made it really easy for
