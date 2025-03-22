@@ -7,9 +7,13 @@
 \usepackage{amsthm}
 \usepackage{hyperref}
 \usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage[maxfloats=256]{morefloats}
+\maxdeadcycles=1000
 
 \title{Thoughts on Turtle Graphics with Euler Spirals}
-\author{Uli Schlachter}
+\author{Uli Schlachter, Robert Schneider}
 
 \newtheorem{lemma}{Lemma}
 \DeclareMathOperator{\rotate}{rotate}
@@ -93,7 +97,7 @@ the same image again, but rotated by 180°. Afterwards, it will really repeat th
 after exactly \(2q\) steps does the image become repeated.
 
 Let us look at what happens around step \(q/2\). We have \(\rotate(\frac{q}{2})=\theta\cdot \frac{q}{2}
-= \frac{p}{q} \cdot \frac{q}{2} = p/2\). Since \(p\) is a whole number, this must be half a rotation, i.e.\ 180° and the
+= \frac{p}{q} \cdot \frac{q}{2} = p/2\). Since \(p\) is a whole number and odd (!), this must be half a rotation, i.e.\ 180° and the
 turtle turns around.
 
 What does the turtle do after turning around?
@@ -103,6 +107,77 @@ the meanings of "turn left" and "turn right".
 What does this mean? It means that after turning around, the turtle will follow its steps backwards home! In step
 q, it will arrive back at the place where it started, but turned by 180°. Then, it traces the same path in the opposite
 direction and at step \(2\cdot q\) it will arrive back at its starting position with its starting angle.
+
+\subsubsection{Experimental results}
+This works very well in experimental validation. For even $q$ the turtle returns home after $2\cdot q$ steps. Only a finite
+number of $p-1$ images is created for a given $p$. The six achievable images for $p=7$ are shown for
+$q \in \{3502, 3504, 3506, 3508, 3510, 3512\}$ in the following picture series.
+
+\includegraphics[width=0.3\textwidth]{tf_p=7--q=3502--theta=000_71958881.png}
+\includegraphics[width=0.3\textwidth]{tf_p=7--q=3504--theta=000_71917808.png}
+\includegraphics[width=0.3\textwidth]{tf_p=7--q=3506--theta=000_71876783.png}
+
+
+\includegraphics[width=0.3\textwidth]{tf_p=7--q=3508--theta=000_71835804.png}
+\includegraphics[width=0.3\textwidth]{tf_p=7--q=3510--theta=000_71794872.png}
+\includegraphics[width=0.3\textwidth]{tf_p=7--q=3512--theta=000_71753986.png}
+
+This number of images per $p$ can only be achieved for prime numbers. Non prime numbers create less images due to the coprime
+restriction of $p$ and $q$.
+
+Adding $2 \cdot p$ to $q$ creates the same base image, but with a higher 
+'resolution', meaning a higher number of steps used to create the Euler spiral. In the following picture series, $p=89$ is
+depicted for $q \in \{2, 180, 358, 536, 714, 892, 1070, 1248, ..., 49842\}$.
+
+\includegraphics[width=0.3\textwidth]{tf_p=89--q=2--theta=16020_00000000.png}
+\includegraphics[width=0.3\textwidth]{tf_p=89--q=180--theta=178_00000000.png}
+\includegraphics[width=0.3\textwidth]{tf_p=89--q=358--theta=089_49720670.png}
+
+
+\includegraphics[width=0.3\textwidth]{tf_p=89--q=536--theta=059_77611940.png}
+\includegraphics[width=0.3\textwidth]{tf_p=89--q=714--theta=044_87394958.png}
+\includegraphics[width=0.3\textwidth]{tf_p=89--q=892--theta=035_91928251.png}
+
+
+\includegraphics[width=0.3\textwidth]{tf_p=89--q=1070--theta=029_94392523.png}
+\includegraphics[width=0.3\textwidth]{tf_p=89--q=1248--theta=025_67307692.png}
+\includegraphics[width=0.3\textwidth]{tf_p=89--q=49842--theta=000_64283135.png}
+
+It can be observed, that the image rotates slowly into it's final position, as the exit angles out of the individual
+Euler Spirals get more and more defined.
+
+If an Euler spiral is defined as the connection between two 'circles', the number of Euler spirals is equal to $p$ for
+any given image.
+
+Within the $p, q$ space there are two very stable images: the horizontal and the vertical Euler spiral of Euler spirals.
+The horizontal ones are created by $q = p \cdot 501 + 1$ and the vertical ones by $q = p \cdot 501 - 1$.
+
+The following image series shows the images for $p \in \{5, 9, 13, 19, 25, 31, 37, 43, 249\}$.
+
+\includegraphics[width=0.3\textwidth]{./horizontal/tfa_046_p=005_q=2506_theta=0-71828_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./horizontal/tfa_046_p=009_q=4510_theta=0-71840_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./horizontal/tfa_046_p=013_q=6514_theta=0-71845_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+
+\includegraphics[width=0.3\textwidth]{./horizontal/tfa_046_p=019_q=9520_theta=0-71849_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./horizontal/tfa_046_p=025_q=12526_theta=0-71851_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./horizontal/tfa_046_p=031_q=15532_theta=0-71852_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+
+\includegraphics[width=0.3\textwidth]{./horizontal/tfa_046_p=037_q=18538_theta=0-71852_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./horizontal/tfa_046_p=043_q=21544_theta=0-71853_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./horizontal/tfa_046_p=249_q=124750_theta=0-71856_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+
+\includegraphics[width=0.3\textwidth]{./vertikal/tfa_046_p=005_q=2504_theta=0-71885_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./vertikal/tfa_046_p=009_q=4508_theta=0-71872_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./vertikal/tfa_046_p=013_q=6512_theta=0-71867_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+
+\includegraphics[width=0.3\textwidth]{./vertikal/tfa_046_p=019_q=9518_theta=0-71864_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./vertikal/tfa_046_p=025_q=12524_theta=0-71862_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./vertikal/tfa_046_p=031_q=15530_theta=0-71861_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+
+\includegraphics[width=0.3\textwidth]{./vertikal/tfa_046_p=037_q=18536_theta=0-71860_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./vertikal/tfa_046_p=043_q=21542_theta=0-71860_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+\includegraphics[width=0.3\textwidth]{./vertikal/tfa_046_p=249_q=124748_theta=0-71857_0_00_b_cyclic_mygbm_30_95_c78_Euler-Euler-Spiral_black.png}
+
 
 \subsection{$q$ is odd}
 In this case \(q+1\) is even so \(\total(q)=p\cdot\frac{q+1}{2}\) is a whole number.
@@ -117,6 +192,29 @@ occur.
 It would be interesting to see what happens around steps \(q/2-1/2\) and \(q/2+1/2\), because the lemma above still
 holds. The turtle will draw the inverse of the path it did until here. There was just no 180° degree rotation like in
 the case of \(q\) being even, so this does not lead back to the starting position.
+
+\subsubsection{Experimental results}
+
+The conjecture holds for the conducted experiments. Odd $q$ form lines. $p = 1$ forms the base element - a line build out
+of Euler spirals. An increase in $q$ increases the number of lines
+per Euler spiral which is conceived as an increase in resolution. The angle of the line compared to the origin moves
+from horizontal to roughly 45° downwards in positive x direction with an increase in $q$.
+
+Similar to even $q$, for a constant $p$, $p-1$ different lines are generated at maximum. Every increase of $q$ by $p$ produces the 
+identical line form with a higher resolution as described above. As an odd $q$ has more freedom concerning the prime
+factors, lines can be generated for even and odd $p$. Though infinite, there are more line turtles than returning turtles.
+
+The lines take of at distinct angles. For an even $p$ the lines follow one of the four main axis directions (+x, -x, +y, -y),
+assuming $q >> p$ and no change of angle due to low number of steps per base element (e.g. small $q$).
+All four directions can be observed for a constant $p$ (e.g. $p = 60$).
+For an odd $p$, the lines take of at a 45 Degree Angle from one of the four axis. For a constant $p$ only two directions are
+filled with lines. For $p \in \{1, 5, 9, ..., 61, ...\}$ the lines go in the directions of +x-y or -x+y.
+For $p \in \{3, 7, 11, ..., 59, ...\}$ the lines go in the direction of +x+y or -x-y.
+
+For $p \in \{1, 5, 9, 25, 49\}$ all the lines run in the same direction (+x-y). With the exception of 1 and 5 these are all
+squares of a prime. After experimental validation this seems to hold true as the result is as expected for $p \in \{121, 169, 289\}$.
+
+This also holds true for $p \in \{81, 625\}$ - both primes to the power 4 - but not for $p = 27 = 3^3$.
 
 \section{Taking the Position into Account}
 Let us represent the position of the turtle in step \(\ell\) with \(p_\ell\in\mathbb{C}\) and its direction with
@@ -210,10 +308,43 @@ for example with \(\phi=90^\circ=\pi/2\) and \(t\) from 0 to 1, and then from 0 
 
 \includegraphics[width=\textwidth]{continuous20.png}
 
-\section{Acknowledgements}
-Thanks a lot to Schneirob for producing \url{https://www.youtube.com/watch?v=Fx1d8x0gIu4}. This made it really easy for
-me to get an overview over things and identify some interesting angels. Then I used
-\url{https://github.com/schneirob/turtlefun} to get the angles that occur during the Euler spiral. All the hard parts
-were already prepared for me.
+\section{Interaction between uneven and even q}
+
+When we take $\theta = \frac{3}{3 \cdot 500 + 1} \cdot 360^{\circ}$ it forms a line as expected.
+
+\includegraphics[width=\textwidth]{tfa_049_p=003_q=001501_000-71952032_linesample.png}
+
+How can we purposfully create further images using this line as a basis? For example $\theta = \frac{625}{625*501 + 208} \cdot 360^{\circ}$
+to form another line based on the first line.
+
+\includegraphics[width=\textwidth]{tfa_049_p=625_q=313333_000-71808587_linesample.png}
+
+Or returning images like $\theta = \frac{661}{661 \cdot 500 + 220} \cdot 360^{\circ}$
+
+\includegraphics[width=\textwidth]{tf_p=661--q=330720--theta=000_71952104.png}
+
+So how about the same $p$ - so looking at $\theta = \frac{625}{625 \cdot 500 + 208} \cdot 360^{\circ}$ we find:
+
+\includegraphics[width=\textwidth]{tf_p=625--q=312708--theta=000_71952109.png}
+
+So the idea would be to define $\theta$ new in the form of $\theta = \frac{p}{p \cdot s + n} \cdot 360^{\circ}$. With $p=const, n=const$ and $n \in \{0, ..., 2\cdot (p-1)\}$
+the difference between the returning version and the line version is increasing s by 1. See chapter \ref{app:A} for a sample Study with $p = 499$
+(as 499 is prime an therefor easy on $q$).
+
+Examples where the connection can be spotted easily are Figures \ref{fig:n=050}, \ref{fig:n=100}, \ref{fig:n=166}, \ref{fig:n=250}, \ref{fig:n=312}.
+
+At this point one might propose latest to rewrite $\frac{p}{q}$ as $\frac{p}{p \cdot s + n}$ with $p$ being the number of Euler spirals in one iteration,
+$s$ being the number of steps per Euler spiral and $n$ being the image selector or szenario selector within one image series defined by $p$.
+
+
+
+% \section{Acknowledgements}
+% Thanks a lot to Schneirob for producing \url{https://www.youtube.com/watch?v=Fx1d8x0gIu4}. This made it really easy for
+% me to get an overview over things and identify some interesting angels. Then I used
+% \url{https://github.com/schneirob/turtlefun} to get the angles that occur during the Euler spiral. All the hard parts
+% were already prepared for me.
+
+\section{Appendix A}\label{app:A}
+\input{stepsplusoneimages}
 
 \end{document}

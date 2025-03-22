@@ -15,7 +15,7 @@ default_path = "./es_results"
 queue_theta = None
 thread_path = None
 thread_iterations = None
-iterations_factor = 5
+iterations_factor = 2
 
 def _euler_spiral_calculation_pq():
     """Calculate Euler Spiral and create report"""

@@ -6,6 +6,7 @@ import itertools
 import math
 import statistics
 import os
+import shutil
 from sympy import nextprime
 from time import perf_counter
 from typing import Union, List, Type
@@ -2499,23 +2500,24 @@ def default(item:int, theta:float) -> None:
             explore_euler_spiral_pq([p], q_list, None, 3, './es_results_uneven')
     elif item == 49:
         """Create sample images for lines"""
-        steps = 500 # actually its half steps ...
+        steps = 501 # actually its half steps ...
         height = 600
-        width *= 4
-        linewidth = 6
+        width *= 1
+        linewidth = 3
  
         animationtype = "linesample"       
         path = os.path.join(path, animationtype)
         os.makedirs(path, exist_ok=True)
 
         pq_list = []
-        p = 0
-        while p < 200:
+        for n in [2, 40, 58, 120, 122]:
+            pq_list.append((625, 313125 + n))
+        for p in []:
             logger.debug("Values in pq_list: {}", len(pq_list))
             if len(pq_list) > 5000:
                 logger.warning("Stopping at p={} due to length of list!", p)
                 break
-            p += 1   
+
             p_primes = get_primes(p)
             q_primes = None
             for n in range(p):
@@ -2587,6 +2589,97 @@ def default(item:int, theta:float) -> None:
             t.euler_spiral(theta, iterations, stepsize)
             
             t.save(name + ".png", path)
+    elif item == 50:
+        """Analyse squares of primes"""
+        steps = 200
+        for p in [81, 625]:  
+            p_primes = get_primes(p)
+            q_primes = None
+            q_list = []
+            for n in range(p):
+                q = steps * p + 2 * n + 1
+                ok = False
+                while not ok:
+                    q_primes = get_primes(q)
+                    if set(p_primes).intersection(set(q_primes)):
+                        q += 2 * p
+                        # logger.debug("p={}, n={}, q={}, p_primes={}, q_primes={}", p, n, q, p_primes, q_primes)
+                    else:
+                        ok = True
+                    if q > 2 * p * steps:
+                        break
+                # logger.debug("Found: p={}, n={}, q={}, p_primes={}, q_primes={}", p, n, q, p_primes, q_primes)
+                if ok:
+                    q_list.append(q)
+            explore_euler_spiral_pq([p], q_list, None, 3, './es_results_uneven')
+    elif item == 51:
+        explore_euler_spiral_pq([661], [330720], 661440, 3, './es_results_line_return_connection')
+    elif item == 52:
+        """Calculate 'every' possible image with p = prime and q = even."""
+        # p == uneven, q == even
+        steps = 500 # actually its half steps ...
+        p = 624
+        while p < 625:
+            p += 1
+            
+            p_primes = get_primes(p)
+            q_primes = None
+            q_list = []
+            for n in range(p-1):
+                q = steps * p + (n + 1) * 2
+                ok = False
+                while not ok:
+                    q_primes = get_primes(q)
+                    if set(p_primes).intersection(set(q_primes)):
+                        q += 2 * p
+                        # logger.debug("p={}, n={}, q={}, p_primes={}, q_primes={}", p, n, q, p_primes, q_primes)
+                    else:
+                        ok = True
+                    if q > 2 * p * steps:
+                        break
+                # logger.debug("Found: p={}, n={}, q={}, p_primes={}, q_primes={}", p, n, q, p_primes, q_primes)
+                if ok:
+                    q_list.append(q)
+            explore_euler_spiral_pq([p], q_list, 2*q+1, 3, './es_results_line_return_connection')
+    elif item == 53:
+        """Analyze off by on step theorem"""
+
+        p = 499 # prime (!)
+        s = 400
+        for n in range(499):
+            pq_list = [
+                (p, p * s + 2 * n),
+                (p, p * (s + 1) + 2 * n),
+            ]
+            explore_euler_spiral_pq_list(pq_list, None, 2, './es_results_step_plus_1_theorem/' + "n=" + "{:03d}".format(2 * n))
+    elif item == 54:
+
+        path = './es_results_step_plus_1_theorem/'
+        target = "./doc/stepsplusoneimages/"
+        os.makedirs(target, exist_ok=True)
+
+        n = 0
+        dirs = os.listdir(path)
+        for dir in dirs:
+            subdirs = os.listdir(os.path.join(path, dir))
+            for subdir in subdirs:
+                files = os.listdir(os.path.join(os.path.join(path, dir), subdir))
+                print("\\begin{figure}[H]")
+                print("  \\centering")
+
+                for file in files:
+                    if file.endswith(".png"):
+                        n += 1
+                        shutil.copy2(os.path.join(os.path.join(os.path.join(path, dir), subdir), file), target + "{:010d}".format(n) + ".png")
+                        print("  \\begin{subfigure}[t]{0.48\\textwidth}")
+                        print("    \\centering")
+                        print("    \\includegraphics[width=\\linewidth]{./stepsplusoneimages/" + "{:010d}".format(n) + ".png" + "}")
+                        print("    \\caption{" + file.replace("_", " ").replace("--", " ") + "}")
+                        print("  \\end{subfigure}")
+                print("  \\caption{" + dir + " s=400 s+1=401}")
+                print("  \\label{fig:" + dir + "}")
+                print("\\end{figure}")
+
 
 @turtlefun.command()
 @click.option("--theta", "-t", default=1, type=float, help="Theta angle of spiral")
